@@ -52,7 +52,7 @@ export default withRouter(props => {
   if (isElectron()) {
     React.useEffect(() => {
       const { ipcRenderer } = require("electron");
-      ipcRenderer.on(ipcActions.CHANGE_ROUTE, (e, route) =>
+      ipcRenderer.on(ipcActions.CHANGE_ROUTE, (e: any, route: string) =>
         props.history.push(route)
       );
 

@@ -1,6 +1,6 @@
 export enum CounterTypeKeys {
-  INCREMENT_COUNTER = 'INCREMENT_COUNTER',
-  DECREMENT_COUNTER = 'DECREMENT_COUNTER'
+  INCREMENT_COUNTER = "INCREMENT_COUNTER",
+  DECREMENT_COUNTER = "DECREMENT_COUNTER"
 }
 
 interface IncrementAction {
@@ -26,7 +26,7 @@ export function decrement() {
 }
 
 export function incrementIfOdd() {
-  return (dispatch, getState) => {
+  return (dispatch: any, getState: any) => {
     const { counter } = getState();
 
     if (counter % 2 === 0) {
@@ -38,7 +38,7 @@ export function incrementIfOdd() {
 }
 
 export function incrementAsync(delay: number = 1000) {
-  return dispatch => {
+  return (dispatch: any) => {
     setTimeout(() => {
       dispatch(increment());
     }, delay);

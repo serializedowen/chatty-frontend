@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 // import EventEmitter from "./eventEmitter";
-import noop from './noop';
+import noop from "./noop";
 //@ts-ignore
-// const { EventEmitter } = window;
+const { EventEmitter } = window;
 
-import EventEmitter from 'events';
+// import EventEmitter from 'events';
 
 const PromiseAllPass = (promises: Promise<any>[]) => {
   if (!promises.length) {
-    return Promise.reject('not a valid array.');
+    return Promise.reject("not a valid array.");
   }
   return Promise.all(promises).then(
     values => values.filter(Boolean).length === values.length
@@ -24,8 +24,8 @@ const useValidation = (
   string,
   () => Promise<any>
 ] => {
-  const [value, setvalue] = useState('');
-  const [errMsg, seterrMsg] = useState('');
+  const [value, setvalue] = useState("");
+  const [errMsg, seterrMsg] = useState("");
   const [validate, setvalidate] = useState(false);
   const [err, seterr] = useState(false);
   const [emitter, setemitter] = useState(null);
@@ -36,16 +36,16 @@ const useValidation = (
 
   useEffect(() => {
     if (validate) {
-      console.log('validating!!!');
+      console.log("validating!!!");
       try {
         validator(value);
         seterr(false);
-        seterrMsg('');
-        emitter.emit('finish', true);
+        seterrMsg("");
+        emitter.emit("finish", true);
       } catch (e) {
         seterrMsg(e.message);
         seterr(true);
-        emitter.emit('finish', false);
+        emitter.emit("finish", false);
       }
       setvalidate(false);
     }
@@ -53,7 +53,7 @@ const useValidation = (
 
   const validateTrigger = () => {
     return new Promise((resolve, reject) => {
-      emitter.once('finish', resolve);
+      emitter.once("finish", resolve);
       setvalidate(true);
     });
     // .catch(console.log);

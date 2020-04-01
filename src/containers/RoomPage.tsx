@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import CONFIG from '../config';
-import io from 'socket.io-client';
-import cookie from '../utils/cookie';
-import axios from '../config/axios';
-import Badge from '@material-ui/core/Badge';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import Room from '../components/Room';
-import CreateRoomDialog from '../components/CreateRoomDialog';
-import MessageCache from '../hoc/MessageCache.js';
+import React, { Component } from "react";
+import CONFIG from "../config";
+import io from "socket.io-client";
+import cookie from "../utils/cookie";
+import axios from "../config/axios";
+import Badge from "@material-ui/core/Badge";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
+import Room from "../components/Room";
+import CreateRoomDialog from "../components/CreateRoomDialog";
+import MessageCache from "../hoc/MessageCache.js";
 
 // import { RoomAttributes } from '../../../../../server/db/sequelize/models/Room';
 
@@ -27,7 +27,7 @@ type State = {
 };
 
 export class RoomPage extends Component<{}, State> {
-  private socket: SocketIOClient.Socket;
+  private socket!: SocketIOClient.Socket;
 
   constructor(props: any) {
     super(props);
@@ -40,13 +40,13 @@ export class RoomPage extends Component<{}, State> {
 
   componentDidMount() {
     this.socket = io(
-      `${CONFIG.HOST}:${CONFIG.PORT}?token=${cookie.getCookie('token')}`
+      `${CONFIG.HOST}:${CONFIG.PORT}?token=${cookie.getCookie("token")}`
     );
-    this.socket.on('create', (room: RoomModel) => {
+    this.socket.on("create", (room: RoomModel) => {
       return this.setState({ rooms: this.state.rooms.concat(room) });
     });
 
-    axios.get('/api/room').then(res => {
+    axios.get("/api/room").then(res => {
       this.setState({ rooms: res.data });
     });
   }
@@ -57,6 +57,7 @@ export class RoomPage extends Component<{}, State> {
 
   render() {
     let { activeRoom, rooms } = this.state;
+
     return (
       <div>
         <Tabs value={activeRoom.id}>
@@ -82,7 +83,7 @@ export class RoomPage extends Component<{}, State> {
                 value={room.id}
                 key={room.id}
                 onClick={() =>
-                  axios.post('/api/my/join-room', { name: room.name })
+                  axios.post("/api/my/join-room", { name: room.name })
                 }
                 label={
                   <Badge color="secondary" badgeContent={4}>
@@ -99,7 +100,7 @@ export class RoomPage extends Component<{}, State> {
                 value={room.id}
                 key={room.id}
                 onClick={() =>
-                  axios.post('/api/my/leave-room', { name: room.name })
+                  axios.post("/api/my/leave-room", { name: room.name })
                 }
                 label={
                   <Badge color="secondary" badgeContent={4}>
@@ -113,7 +114,7 @@ export class RoomPage extends Component<{}, State> {
 
         <MessageCache
           roomId={activeRoom.hashId}
-          component={cachedMessage => (
+          component={(cachedMessage: any) => (
             <Room key={activeRoom.hashId} cache={cachedMessage} />
           )}
         ></MessageCache>

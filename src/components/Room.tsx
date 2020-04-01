@@ -1,54 +1,55 @@
-import React, { Component } from 'react';
-import io from 'socket.io-client';
-import CONFIG from '../config';
-import axios from '../config/axios';
-import Button from '@material-ui/core/Button';
-import cookie from '../utils/cookie';
-import Chip from '@material-ui/core/Chip';
-import TextField from '@material-ui/core/TextField';
-import { throttle } from 'lodash';
+import React, { Component } from "react";
+import io from "socket.io-client";
+import CONFIG from "../config";
+import axios from "../config/axios";
+import Button from "@material-ui/core/Button";
+import cookie from "../utils/cookie";
+import Chip from "@material-ui/core/Chip";
+import TextField from "@material-ui/core/TextField";
+import { throttle } from "lodash";
 
 type State = {
   messages: any[];
   input: string;
 };
 
-export default class Room extends Component<{ cache: any[] }, State> {
-  private socket: SocketIOClient.Socket;
+type Props = { cache: any[] };
 
-  constructor(props) {
+export default class Room extends Component<Props, State> {
+  private socket!: SocketIOClient.Socket;
+
+  constructor(props: Props) {
     super(props);
     // this.styles = useStyles();
     this.state = {
       messages: [],
-      input: ''
+      input: ""
     };
     this.sendMessage = this.sendMessage.bind(this);
   }
 
   setTyping = throttle(() => {
-    console.log('object');
-    this.socket.emit('typing', '');
+    this.socket.emit("typing", "");
   }, 1000);
 
   sendMessage() {
     this.socket.send(this.state.input);
-    this.setState({ input: '' });
+    this.setState({ input: "" });
   }
 
   login = () => {
     console.log(axios);
     axios
-      .get('/verify')
+      .get("/verify")
 
       .catch(console.log);
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevProps.cache !== this.props.cache) {
       this.setState({
         messages: this.props.cache
-          .map(item => Object.defineProperty(item, 'cached', { value: true }))
+          .map(item => Object.defineProperty(item, "cached", { value: true }))
           .concat(this.state.messages)
       });
     }
@@ -59,23 +60,23 @@ export default class Room extends Component<{ cache: any[] }, State> {
 
     this.setState({
       messages: this.props.cache
-        .map(item => Object.defineProperty(item, 'cached', { value: true }))
+        .map(item => Object.defineProperty(item, "cached", { value: true }))
         .concat(this.state.messages)
     });
 
     this.socket = io(
-      `${CONFIG.HOST}:${CONFIG.PORT}?token=${cookie.getCookie('token')}`
+      `${CONFIG.HOST}:${CONFIG.PORT}?token=${cookie.getCookie("token")}`
     );
-    this.socket.on('message', message => {
+    this.socket.on("message", (message: any) => {
       console.log(message);
       this.setState(prevState => ({
         messages: prevState.messages.concat(message)
       }));
       // console.log(message);
     });
-    this.socket.on('disconnect', () => console.log('disconnected'));
+    this.socket.on("disconnect", () => console.log("disconnected"));
 
-    this.socket.on('typing', console.log);
+    this.socket.on("typing", console.log);
   }
 
   componentWillUnmount() {
