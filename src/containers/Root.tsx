@@ -1,24 +1,38 @@
-import * as React from 'react';
-import { Component } from 'react';
-import { Provider } from 'react-redux';
-import { ConnectedRouter } from 'connected-react-router';
-import Routes from '../Routes';
-import { History } from 'history';
+import * as React from "react";
+import { Component } from "react";
+import { ConnectedRouter } from "connected-react-router";
+import Routes from "../Routes";
+import { History } from "history";
+import { withSnackbar, WithSnackbarProps } from "notistack";
+import cookie from "src/utils/cookie";
+import { connect } from "react-redux";
+import { compose, Dispatch, bindActionCreators } from "redux";
+// import { AuthActionKeys, storeCredential } from "src/store/actions/auth";
+import AuthActions from "src/store/actions/auth";
 
-type Props = {
-  store: any;
-  history: History<any>;
-};
+class Root extends Component<
+  WithSnackbarProps & {
+    history: History<any>;
+    storeCredential: typeof AuthActions.storeCredential;
+  }
+> {
+  componentDidMount() {
+    this.props.storeCredential(cookie.getCookie("chattytoken"));
+  }
 
-export default class Root extends Component<Props> {
   render() {
-    const { store, history } = this.props;
+    const { history } = this.props;
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Routes />
-        </ConnectedRouter>
-      </Provider>
+      <ConnectedRouter history={history}>
+        <Routes />
+      </ConnectedRouter>
     );
   }
 }
+
+export default compose(
+  connect(null, (dispatch: Dispatch) =>
+    bindActionCreators(AuthActions, dispatch)
+  ),
+  withSnackbar
+)(Root);

@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import io from "socket.io-client";
-import CONFIG from "../config";
-import axios from "../config/axios";
+
 import Button from "@material-ui/core/Button";
-import cookie from "../utils/cookie";
 import Chip from "@material-ui/core/Chip";
 import TextField from "@material-ui/core/TextField";
 import { throttle } from "lodash";
+import socket from "src/services/socket";
 
 type State = {
   messages: any[];
@@ -16,8 +14,6 @@ type State = {
 type Props = { cache: any[] };
 
 export default class Room extends Component<Props, State> {
-  private socket!: SocketIOClient.Socket;
-
   constructor(props: Props) {
     super(props);
     // this.styles = useStyles();
@@ -26,24 +22,23 @@ export default class Room extends Component<Props, State> {
       input: ""
     };
     this.sendMessage = this.sendMessage.bind(this);
+    this.setMessage = this.setMessage.bind(this);
   }
 
   setTyping = throttle(() => {
-    this.socket.emit("typing", "");
+    socket.socket.emit("typing", "");
   }, 1000);
 
   sendMessage() {
-    this.socket.send(this.state.input);
+    socket.socket.send(this.state.input);
     this.setState({ input: "" });
   }
 
-  login = () => {
-    console.log(axios);
-    axios
-      .get("/verify")
-
-      .catch(console.log);
-  };
+  setMessage(message: any) {
+    this.setState(prevState => ({
+      messages: prevState.messages.concat(message)
+    }));
+  }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevProps.cache !== this.props.cache) {
@@ -56,31 +51,18 @@ export default class Room extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // this.setState({messages: this.props.cache})
-
     this.setState({
       messages: this.props.cache
         .map(item => Object.defineProperty(item, "cached", { value: true }))
         .concat(this.state.messages)
     });
 
-    this.socket = io(
-      `${CONFIG.HOST}:${CONFIG.PORT}?token=${cookie.getCookie("token")}`
-    );
-    this.socket.on("message", (message: any) => {
-      console.log(message);
-      this.setState(prevState => ({
-        messages: prevState.messages.concat(message)
-      }));
-      // console.log(message);
-    });
-    this.socket.on("disconnect", () => console.log("disconnected"));
-
-    this.socket.on("typing", console.log);
+    socket.socket.on("message", this.setMessage);
+    socket.socket.on("disconnect", () => console.log("disconnected"));
   }
 
   componentWillUnmount() {
-    this.socket.close();
+    socket.socket.off("message", this.setMessage);
   }
 
   render() {
@@ -88,11 +70,15 @@ export default class Room extends Component<Props, State> {
       <div>
         {/* <ul> */}
         {this.state.messages.map((message, i) => (
-          <Chip
-            clickable
-            label={message.content ? message.content : message}
-            key={i}
-          ></Chip>
+          <div>
+            <Chip
+              clickable
+              label={
+                message.content && message.createdAt ? message.content : null
+              }
+              key={i}
+            ></Chip>
+          </div>
         ))}
         {/* </ul> */}
 
@@ -118,9 +104,6 @@ export default class Room extends Component<Props, State> {
         />
         <Button variant="contained" color="primary" onClick={this.sendMessage}>
           发送
-        </Button>
-        <Button variant="contained" color="primary" onClick={this.login}>
-          登陆
         </Button>
       </div>
     );

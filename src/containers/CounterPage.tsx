@@ -1,7 +1,7 @@
-import { bindActionCreators, Dispatch } from 'redux';
-import { connect } from 'react-redux';
-import Counter from '../components/Counter';
-import CounterActions from '../store/actions/counter';
+import { bindActionCreators, Dispatch } from "redux";
+import { connect } from "react-redux";
+import Counter from "src/components/Counter";
+import CounterActions from "src/store/actions/counter";
 
 export interface CounterState {
   counter: number;

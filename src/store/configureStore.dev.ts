@@ -5,7 +5,8 @@ import { routerMiddleware, routerActions } from "connected-react-router";
 import { createLogger } from "redux-logger";
 import createRootReducer from "./reducers";
 import * as counterActions from "./actions/counter";
-
+import { createEpicMiddleware } from "redux-observable";
+import rootEpics from "./epics";
 const history = createHashHistory();
 
 const rootReducer = createRootReducer(history);
@@ -15,8 +16,11 @@ const configureStore = (initialState?: any) => {
   const middleware = [];
   const enhancers = [];
 
+  const epic = createEpicMiddleware();
+
   // Thunk Middleware
   middleware.push(thunk);
+  middleware.push(epic);
 
   // Logging Middleware
   const logger = createLogger({
@@ -50,6 +54,7 @@ const configureStore = (initialState?: any) => {
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(...middleware));
+
   const enhancer = composeEnhancers(...enhancers);
 
   // Create Store
@@ -61,6 +66,9 @@ const configureStore = (initialState?: any) => {
       () => store.replaceReducer(require("./reducers").default)
     );
   }
+
+  //@ts-ignore
+  epic.run(rootEpics);
 
   return store;
 };

@@ -3,5 +3,6 @@
   "COUNTER": "/counter",
   "LOGIN": "/login",
   "ROOM": "/room",
-  "SIGNUP": "/signup"
+  "SIGNUP": "/signup",
+  "LOGOUT": "/logout"
 }

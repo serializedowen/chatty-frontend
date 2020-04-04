@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-// import EventEmitter from "./eventEmitter";
-import noop from "./noop";
+
 //@ts-ignore
 const { EventEmitter } = window;
 
@@ -56,7 +55,6 @@ const useValidation = (
       emitter.once("finish", resolve);
       setvalidate(true);
     });
-    // .catch(console.log);
   };
 
   return [value, setvalue, err, errMsg, validateTrigger];

@@ -6,15 +6,18 @@ import HomePage from "./containers/HomePage";
 import CounterPage from "./containers/CounterPage";
 import LoginPage from "./containers/LoginPage";
 import { Link, withRouter } from "react-router-dom";
-
+import SignupPage from "./containers/SignupPage";
 import { BottomNavigation } from "@material-ui/core";
 import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import SignUpIcon from "@material-ui/icons/PersonAddOutlined";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import HomeIcon from "@material-ui/icons/HomeOutlined";
 import ChatIcon from "@material-ui/icons/ForumOutlined";
 import RoomPage from "./containers/RoomPage";
 import isElectron from "./utils/isElectron.js";
 import ipcActions from "./ipcActions";
+import AuthenticationRequired from "./hoc/AuthenticationRequired";
 const navigationItems = [
   {
     label: "主页",
@@ -40,15 +43,21 @@ const navigationItems = [
   {
     label: "登录",
     value: "登录",
-    icon: <SignUpIcon />,
+    icon: <ArrowUpwardIcon />,
     component: Link,
     to: routes.LOGIN
+  },
+  {
+    label: "注销",
+    value: "注销",
+    icon: <ArrowDownwardIcon />,
+    component: Link,
+    to: routes.LOGOUT
   }
 ];
 
 export { navigationItems };
 export default withRouter(props => {
-  console.log(isElectron());
   if (isElectron()) {
     React.useEffect(() => {
       const { ipcRenderer } = require("electron");
@@ -59,15 +68,21 @@ export default withRouter(props => {
       return () => {
         ipcRenderer.removeAllListeners(ipcActions.CHANGE_ROUTE);
       };
-    }, []);
+    }, [props.history]);
   }
 
   return (
     <App>
       <Switch>
         <Route path={routes.LOGIN} component={LoginPage} />
-        <Route path={routes.ROOM} component={RoomPage}></Route>
+        <Route path={routes.LOGOUT} component={LoginPage} />
+        <Route path={routes.SIGNUP} component={SignupPage} />
+
+        <AuthenticationRequired>
+          <Route path={routes.ROOM} component={RoomPage} />
+        </AuthenticationRequired>
         <Route path={routes.COUNTER} component={CounterPage} />
+
         <Route path={routes.HOME} component={HomePage} />
       </Switch>
 
@@ -86,35 +101,6 @@ export default withRouter(props => {
             ></BottomNavigationAction>
           );
         })}
-        {/* <BottomNavigationAction
-        label="主页"
-        value="主页"
-        icon={<HomeIcon />}
-        component={Link}
-        to="/"
-      />
-
-      <BottomNavigationAction
-        label="房间"
-        value="房间"
-        icon={<ChatIcon />}
-        component={Link}
-        to={routes.ROOM}
-      />
-      <BottomNavigationAction
-        label="注册"
-        value="Sign Up"
-        icon={<SignUpIcon />}
-        component={Link}
-        to="/signup"
-      />
-      <BottomNavigationAction
-        label="登陆"
-        value="Log In"
-        icon={<SignUpIcon />}
-        component={Link}
-        to={routes.LOGIN}
-      /> */}
       </BottomNavigation>
     </App>
   );

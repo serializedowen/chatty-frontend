@@ -2,7 +2,6 @@ import * as React from "react";
 import { Component } from "react";
 import { Link } from "react-router-dom";
 import routes from "../constants/routes.json";
-import Axios from "axios";
 import { Button } from "@material-ui/core";
 import isElectron from "../utils/isElectron.js";
 const styles = require("./Home.css");
@@ -30,7 +29,7 @@ export default class Home extends Component<Props> {
   };
 
   render() {
-    Axios.get("http://localhost:3000/api/user");
+    console.log("home");
     return (
       <div className={styles.container} data-tid="container">
         <h2>Home</h2>

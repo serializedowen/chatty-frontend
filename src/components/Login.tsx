@@ -1,20 +1,24 @@
-import React, { SyntheticEvent, MutableRefObject } from 'react';
-import axios from '../config/axios';
-import reactdom from 'react-dom';
-import FormControl from '@material-ui/core/FormControl';
+import React, { SyntheticEvent, MutableRefObject } from "react";
+import reactdom from "react-dom";
 
-import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
+import FormControl from "@material-ui/core/FormControl";
+import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import Visibility from "@material-ui/icons/Visibility";
+import { TextField } from "@material-ui/core";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 
-import InputAdornment from '@material-ui/core/InputAdornment';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import useValidation, { PromiseAllPass } from '../utils/useValidation';
+import useValidation, { PromiseAllPass } from "src/utils/useValidation";
+import axios from "src/config/axios";
+import Cookie from "src/utils/cookie";
 
-import Cookie from '../utils/cookie';
-import { TextField } from '@material-ui/core';
+import { useHistory } from "react-router-dom";
+import { useSnackbar } from "notistack";
 
-// Input.prototype.Validate = () => console.log("validate");
+import { useStore } from "react-redux";
+
+import { storeCredential } from "src/store/actions/auth";
 
 type Props = {
   callback?: Function;
@@ -22,33 +26,40 @@ type Props = {
 };
 
 export default function Login(props: Props) {
-  const login = () => {
-    PromiseAllPass([triggerName(), triggerPass()])
-      .then(i => {
-        console.log(i);
-        return i;
-      })
-      .then(valid => {
-        if (valid) {
-          debugger;
-          return axios
-            .post('/login', {
-              username,
-              password
-            })
+  const { enqueueSnackbar } = useSnackbar();
+  const history = useHistory();
 
-            .then(res => {
-              console.log(res);
-              Cookie.setCookie('token', res.data);
-            })
-            .then(() => {
-              if (typeof props.callback === 'function') {
-                return props.callback();
-              }
-            })
-            .catch(e => {});
-        }
-      });
+  const store = useStore();
+
+  const login = () => {
+    PromiseAllPass([triggerName(), triggerPass()]).then(valid => {
+      if (valid) {
+        return axios
+          .post("/login", {
+            username,
+            password
+          })
+
+          .then(res => {
+            Cookie.setCookie("chattytoken", res.data);
+
+            console.log(res.data);
+            store.dispatch(storeCredential(res.data));
+          })
+          .then(() => {
+            enqueueSnackbar("Login successful!", { variant: "success" });
+            if (typeof props.callback === "function") {
+              return props.callback();
+            } else {
+              history.goBack();
+            }
+          })
+          .catch(e => {
+            console.log(e);
+            enqueueSnackbar("Login failed!", { variant: "error" });
+          });
+      }
+    });
   };
 
   const [
@@ -58,8 +69,8 @@ export default function Login(props: Props) {
     errNameMsg,
     triggerName
   ] = useValidation(val => {
-    if (val === '') {
-      throw new Error('username cant be empty');
+    if (val === "") {
+      throw new Error("username cant be empty");
     }
   });
 
@@ -78,8 +89,8 @@ export default function Login(props: Props) {
     errPassMsg,
     triggerPass
   ] = useValidation(val => {
-    if (val === '') {
-      throw new Error('username cant be empty');
+    if (val === "") {
+      throw new Error("username cant be empty");
     }
   });
 
@@ -120,7 +131,7 @@ export default function Login(props: Props) {
         {/* <WithValidation component={Input} /> */}
         <TextField
           id="adornment-password"
-          type={values.showPassword ? 'text' : 'password'}
+          type={values.showPassword ? "text" : "password"}
           value={password}
           error={errPass}
           helperText={errPassMsg}
@@ -154,22 +165,3 @@ export default function Login(props: Props) {
     </form>
   );
 }
-
-// import React, { useState } from 'react';
-// import { Button } from '@material-ui/core';
-
-// const f = () => {
-//   console.log('object');
-//   return '';
-// };
-
-// const g = () => {
-//   return 0;
-// };
-// export default function Index() {
-//   const [state, setstate] = React.useState(f());
-//   const [abc, setabc] = useState(g());
-
-//   console.log('render');
-//   return <Button onClick={() => setabc(abc + 1)}>a</Button>;
-// }

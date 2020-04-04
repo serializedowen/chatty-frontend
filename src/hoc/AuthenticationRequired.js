@@ -1,15 +1,14 @@
-import React, { useRef } from 'react';
-import { withRouter } from 'react-router-dom';
-import { Dialog, DialogActions, DialogContent } from '@material-ui/core';
+import React, { useRef } from "react";
+import { withRouter } from "react-router-dom";
+import { Dialog, DialogActions, DialogContent } from "@material-ui/core";
+import { connect } from "react-redux";
+import { compose } from "redux";
 
-import Login from '../components/Login';
+import Login from "../components/Login";
 
-let isAuthenticated = true;
-
-function AuthenticationRequired({ children, ...rest }) {
+function AuthenticationRequired({ children, isAuthenticated, ...rest }) {
   const ref = useRef(undefined);
 
-  console.log(rest);
   return isAuthenticated ? (
     children
   ) : (
@@ -18,8 +17,7 @@ function AuthenticationRequired({ children, ...rest }) {
         <Login
           portal={ref}
           callback={() => {
-            isAuthenticated = true;
-            rest.history.push('/rooms');
+            rest.history.push("/");
           }}
         />
       </DialogContent>
@@ -30,4 +28,7 @@ function AuthenticationRequired({ children, ...rest }) {
   );
 }
 
-export default withRouter(AuthenticationRequired);
+export default compose(
+  connect(state => ({ isAuthenticated: !!state.auth.credential })),
+  withRouter
+)(AuthenticationRequired);
